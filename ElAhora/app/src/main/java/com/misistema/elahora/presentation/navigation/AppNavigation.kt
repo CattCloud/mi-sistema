@@ -21,9 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import com.misistema.elahora.presentation.home.HomeScreen
 import com.misistema.elahora.presentation.settings.MarkdownReaderScreen
 import com.misistema.elahora.presentation.settings.SettingsScreen
-import com.misistema.elahora.presentation.theme.Black
-import com.misistema.elahora.presentation.theme.White
-import com.misistema.elahora.presentation.theme.Yellow
+import com.misistema.elahora.presentation.theme.*
 
 @Composable
 fun AppNavigation() {
@@ -35,12 +33,12 @@ fun AppNavigation() {
         bottomBar = {
             if (currentRoute == "home" || currentRoute == "settings") {
                 NavigationBar(
-                    containerColor = Yellow, // Fondo Neubrutalism para el bottom bar
-                    contentColor = Black
+                    containerColor = BgPage,
+                    contentColor = TextPrimary
                 ) {
                     NavigationBarItem(
                         icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
-                        label = { Text("Home") },
+                        label = { Text("Home", style = Typography.labelSmall) },
                         selected = currentRoute == "home",
                         onClick = {
                             navController.navigate("home") {
@@ -49,16 +47,16 @@ fun AppNavigation() {
                             }
                         },
                         colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = White,
-                            selectedTextColor = Black,
-                            indicatorColor = Black,
-                            unselectedIconColor = Black,
-                            unselectedTextColor = Black
+                            selectedIconColor = TextPrimary,
+                            selectedTextColor = TextPrimary,
+                            indicatorColor = AccentLight,
+                            unselectedIconColor = TextSecondary,
+                            unselectedTextColor = TextSecondary
                         )
                     )
                     NavigationBarItem(
                         icon = { Icon(Icons.Filled.Settings, contentDescription = "Settings") },
-                        label = { Text("Settings") },
+                        label = { Text("Settings", style = Typography.labelSmall) },
                         selected = currentRoute == "settings",
                         onClick = {
                             navController.navigate("settings") {
@@ -67,11 +65,11 @@ fun AppNavigation() {
                             }
                         },
                         colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = White,
-                            selectedTextColor = Black,
-                            indicatorColor = Black,
-                            unselectedIconColor = Black,
-                            unselectedTextColor = Black
+                            selectedIconColor = TextPrimary,
+                            selectedTextColor = TextPrimary,
+                            indicatorColor = AccentLight,
+                            unselectedIconColor = TextSecondary,
+                            unselectedTextColor = TextSecondary
                         )
                     )
                 }
@@ -91,7 +89,6 @@ fun AppNavigation() {
             composable("settings") {
                 SettingsScreen(
                     onNavigateToMarkdown = { fileName ->
-                        // Navegamos pasando el fileName como parámetro (usaremos SavedStateHandle idealmente, pero simplificado por ahora via route string)
                         navController.navigate("markdown/$fileName")
                     }
                 )

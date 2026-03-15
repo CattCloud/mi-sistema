@@ -55,10 +55,11 @@ object AppModule {
     @Provides
     @Singleton
     fun provideLocalRepository(
+        @ApplicationContext context: Context,
         dao: DailyLogDao,
         prefs: SistemaPreferences
     ): LocalRepository {
-        return LocalRepositoryImpl(dao, prefs)
+        return LocalRepositoryImpl(context, dao, prefs)
     }
 
     // --- REMOTE DATA (GITHUB API) ---

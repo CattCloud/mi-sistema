@@ -22,13 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.misistema.elahora.presentation.theme.Black
-import com.misistema.elahora.presentation.theme.Cyan
-import com.misistema.elahora.presentation.theme.NeuCard
-import com.misistema.elahora.presentation.theme.Typography
-import com.misistema.elahora.presentation.theme.Violet
-import com.misistema.elahora.presentation.theme.White
-import com.misistema.elahora.presentation.theme.Yellow
+import com.misistema.elahora.presentation.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,11 +35,11 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("CONFIGURACIÓN", style = Typography.titleLarge) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = White)
+                title = { Text("CONFIGURACIÓN", style = Typography.labelSmall) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = BgPage)
             )
         },
-        containerColor = White
+        containerColor = BgPage
     ) { padding ->
         Column(
             modifier = Modifier
@@ -57,41 +51,45 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // GitHub Sync Section
-            NeuCard(backgroundColor = Cyan, modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(16.dp)) {
+            HenryCard {
+                Column(modifier = Modifier.padding(20.dp)) {
                     Text("SINCRONIZACIÓN GITHUB", style = Typography.labelSmall)
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                     
-                    Text("Repositorio (owner/repo)", style = Typography.labelSmall)
+                    Text("Repositorio (owner/repo)", style = Typography.bodyLarge, color = TextSecondary)
                     TextField(
                         value = state.githubRepo,
                         onValueChange = viewModel::onRepoChange,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                        textStyle = Typography.bodyLarge,
                         colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = White,
-                            focusedContainerColor = White,
-                            unfocusedIndicatorColor = Black,
-                            focusedIndicatorColor = Black,
-                            focusedTextColor = Black,
-                            unfocusedTextColor = Black
-                        )
+                            unfocusedContainerColor = AccentLight,
+                            focusedContainerColor = BgCard,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            focusedIndicatorColor = DividerColor,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
+                        ),
+                        singleLine = true
                     )
                     
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                     
-                    Text("Token de Acceso", style = Typography.labelSmall)
+                    Text("Token de Acceso", style = Typography.bodyLarge, color = TextSecondary)
                     TextField(
                         value = state.githubToken,
                         onValueChange = viewModel::onTokenChange,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                        textStyle = Typography.bodyLarge,
                         colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = White,
-                            focusedContainerColor = White,
-                            unfocusedIndicatorColor = Black,
-                            focusedIndicatorColor = Black,
-                            focusedTextColor = Black,
-                            unfocusedTextColor = Black
-                        )
+                            unfocusedContainerColor = AccentLight,
+                            focusedContainerColor = BgCard,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            focusedIndicatorColor = DividerColor,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
+                        ),
+                        singleLine = true
                     )
                 }
             }
@@ -99,22 +97,25 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Sistema Activo manually
-            NeuCard(backgroundColor = Yellow, modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(16.dp)) {
+            HenryCard {
+                Column(modifier = Modifier.padding(20.dp)) {
                     Text("SISTEMA ACTIVO", style = Typography.labelSmall)
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("Nombre del archivo JSON (ej: 01-calidad-sueno)", style = Typography.bodyLarge, color = TextSecondary)
                     TextField(
                         value = state.activeSystemId,
                         onValueChange = viewModel::onActiveSystemChange,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                        textStyle = Typography.bodyLarge,
                         colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = White,
-                            focusedContainerColor = White,
-                            unfocusedIndicatorColor = Black,
-                            focusedIndicatorColor = Black,
-                            focusedTextColor = Black,
-                            unfocusedTextColor = Black
-                        )
+                            unfocusedContainerColor = AccentLight,
+                            focusedContainerColor = BgCard,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            focusedIndicatorColor = DividerColor,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
+                        ),
+                        singleLine = true
                     )
                 }
             }
@@ -122,24 +123,19 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // Docs System
-            NeuCard(backgroundColor = Violet, contentColor = White, modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(16.dp)) {
+            HenryCard {
+                Column(modifier = Modifier.padding(20.dp)) {
                     Text("DOCUMENTOS COMPLEMENTARIOS", style = Typography.labelSmall)
                     Spacer(modifier = Modifier.height(16.dp))
                     
-                    // En lugar de componentes complejos, por ahora crearemos NeuButtons para navegar 
-                    com.misistema.elahora.presentation.theme.NeuButton(
+                    HenryButton(
                         text = "LEER YO.MD",
-                        backgroundColor = White,
-                        contentColor = Black,
                         onClick = { onNavigateToMarkdown("yo.md") },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    com.misistema.elahora.presentation.theme.NeuButton(
+                    Spacer(modifier = Modifier.height(12.dp))
+                    HenryButton(
                         text = "LEER REGLAS DEL SISTEMA",
-                        backgroundColor = White,
-                        contentColor = Black,
                         onClick = { onNavigateToMarkdown("reglas-del-sistema.md") },
                         modifier = Modifier.fillMaxWidth()
                     )

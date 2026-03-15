@@ -1,0 +1,21 @@
+{
+  "id": "01-calidad-sueno",
+  "nombre": "El Santuario del Sueño",
+  "icon": "moon",
+  "quote": "Hoy es un nuevo día. Solo esto.",
+  "identidad": "Soy alguien que apaga todo de noche, porque mañana a las 6:30 arranco y no quiero fallarme.",
+  "accion_ideal": "Dormir a las 22:45 pm exactas y despertar a las 6:30 am (5 ciclos de sueño de 90 min) de lunes a domingo",
+  "accion_diminuta": "Apagar laptop a las 23:00",
+  "mini_rutina": {
+    "nombre": "Mini-Rutina de Bajada",
+    "duracion_min": 6,
+    "pasos": [
+      "Estiramiento 5 min",
+      "Orar 1 minuto"
+    ]
+  },
+  "fases": {
+    "actual": 1,
+    "total": 3
+  }
+}

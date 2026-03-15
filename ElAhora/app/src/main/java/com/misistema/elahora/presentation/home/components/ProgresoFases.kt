@@ -14,10 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.misistema.elahora.presentation.theme.Black
-import com.misistema.elahora.presentation.theme.Cyan
-import com.misistema.elahora.presentation.theme.Typography
-import com.misistema.elahora.presentation.theme.White
+import com.misistema.elahora.presentation.theme.*
 
 @Composable
 fun ProgresoFases(
@@ -32,7 +29,9 @@ fun ProgresoFases(
     ) {
         for (i in 1..totalFases) {
             val isActive = i == faseActual
-            val bgColor = if (isActive) Cyan else White
+            val bgColor = if (isActive) AccentButton else BgCard
+            val textColor = if (isActive) TextPrimary else TextSecondary
+            val borderColor = if (isActive) DividerColor else DividerColor.copy(alpha = 0.5f)
             
             Box(
                 contentAlignment = Alignment.Center,
@@ -40,20 +39,20 @@ fun ProgresoFases(
                     .padding(horizontal = 4.dp)
                     .size(32.dp)
                     .background(bgColor, CircleShape)
-                    .border(3.dp, Black, CircleShape)
+                    .border(1.dp, borderColor, CircleShape)
             ) {
                 Text(
                     text = "$i",
                     style = Typography.labelSmall,
-                    color = Black
+                    color = textColor
                 )
             }
             
             if (i < totalFases) {
                 Box(
                     modifier = Modifier
-                        .size(width = 16.dp, height = 3.dp)
-                        .background(Black)
+                        .size(width = 16.dp, height = 1.dp)
+                        .background(DividerColor)
                 )
             }
         }

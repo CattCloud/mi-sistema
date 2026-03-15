@@ -1,90 +1,89 @@
 package com.misistema.elahora.presentation.theme
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun NeuCard(
+fun HenryCard(
     modifier: Modifier = Modifier,
-    backgroundColor: Color = White,
-    contentColor: Color = Black,
-    shape: Shape = RoundedCornerShape(0.dp),
-    borderWidth: Dp = 3.dp,
-    shadowOffset: Dp = 6.dp,
     content: @Composable () -> Unit
 ) {
-    Box(modifier = modifier.padding(bottom = shadowOffset, end = shadowOffset)) {
-        // Flat Shadow
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .padding(start = shadowOffset, top = shadowOffset)
-                .background(Black, shape)
-        )
-        
-        // Main Content Card
-        Card(
-            modifier = Modifier,
-            shape = shape,
-            colors = CardDefaults.cardColors(containerColor = backgroundColor, contentColor = contentColor),
-            border = BorderStroke(borderWidth, Black)
-        ) {
-            content()
-        }
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(6.dp),
+        colors = CardDefaults.cardColors(containerColor = BgCard),
+        border = BorderStroke(1.dp, DividerColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        content()
     }
 }
 
 @Composable
-fun NeuButton(
+fun HenryButton(
     text: String,
+    isActive: Boolean = false,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    backgroundColor: Color = White,
-    contentColor: Color = Black,
-    borderWidth: Dp = 3.dp,
-    shadowOffset: Dp = 4.dp
+    modifier: Modifier = Modifier
 ) {
-    Box(modifier = modifier.padding(bottom = shadowOffset, end = shadowOffset)) {
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .padding(start = shadowOffset, top = shadowOffset)
-                .background(Black)
+    Button(
+        onClick = onClick,
+        shape = RoundedCornerShape(4.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (isActive) AccentButtonActive else AccentButton,
+            contentColor = if (isActive) TextPrimary else TextSecondary
+        ),
+        border = BorderStroke(1.dp, DividerColor),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+        modifier = modifier
+    ) {
+        Text(
+            text = text,
+            style = Typography.bodyLarge,
+            fontWeight = FontWeight.Medium
         )
+    }
+}
 
-        Button(
-            onClick = onClick,
-            shape = RoundedCornerShape(0.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = backgroundColor,
-                contentColor = contentColor
-            ),
-            border = BorderStroke(borderWidth, Black),
-            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp),
-            modifier = Modifier
+@Composable
+fun HenryDayTag(
+    dayName: String,
+    isSelected: Boolean = false,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(4.dp),
+        color = if (isSelected) AccentButton else AccentLight,
+        border = BorderStroke(1.dp, if (isSelected) DividerColor else Color.Transparent),
+        modifier = modifier
+    ) {
+        Box(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+            contentAlignment = Alignment.Center
         ) {
             Text(
-                text = text,
-                style = Typography.labelSmall
+                text = dayName,
+                style = Typography.bodyLarge,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                color = if (isSelected) TextPrimary else TextSecondary
             )
         }
     }

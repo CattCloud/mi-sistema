@@ -1,76 +1,39 @@
 package com.misistema.elahora.domain.model
 
+import org.json.JSONObject
+
 object SistemaParser {
-
-    fun parse(id: String, markdown: String): Sistema {
-        // Valores por defecto
-        var nombre = id.replace("-", " ").replaceFirstChar { it.uppercase() }
-        var mantra = ""
-        var accionDiminuta = ""
+    fun parseJson(jsonString: String): Sistema {
+        val root = JSONObject(jsonString)
+        
+        val rutina = root.getJSONObject("mini_rutina")
+        val pasosArray = rutina.getJSONArray("pasos")
         val pasos = mutableListOf<String>()
-        var protocolo = ""
-        var faseActual = 1
-
-        val lines = markdown.lines()
-        var currentSection = ""
-
-        for (line in lines) {
-            val trimmed = line.trim()
-            
-            // Detectar secciones H1 / H2
-            if (trimmed.startsWith("# ")) {
-                nombre = trimmed.removePrefix("# ").trim()
-                continue
-            }
-            if (trimmed.startsWith("## ")) {
-                currentSection = trimmed.removePrefix("## ").lowercase()
-                continue
-            }
-            
-            if (trimmed.isEmpty()) continue
-
-            // Lógica por sección basada en plantilla-sistema.md
-            when {
-                currentSection.contains("nueva identidad") || currentSection.contains("mantra") -> {
-                    if (trimmed.startsWith(">")) {
-                        mantra += trimmed.removePrefix(">").trim() + " "
-                    } else if (mantra.isEmpty() && !trimmed.startsWith("**")) {
-                        mantra += "$trimmed " // Fallback
-                    }
-                }
-                currentSection.contains("acción diminuta") -> {
-                    if (trimmed.startsWith("-") || trimmed.startsWith("*")) {
-                        if (accionDiminuta.isEmpty()) {
-                            accionDiminuta = trimmed.removePrefix("-").removePrefix("*").trim()
-                        }
-                    } else if (accionDiminuta.isEmpty()) {
-                        accionDiminuta = trimmed
-                    }
-                }
-                currentSection.contains("pasos") || currentSection.contains("acción extendida") -> {
-                    if (trimmed.startsWith("-") || Regex("^\\d+\\.").containsMatchIn(trimmed)) {
-                        pasos.add(trimmed.replace(Regex("^[-*0-9.]+"), "").trim())
-                    }
-                }
-                currentSection.contains("protocolo del peor día") -> {
-                    if (trimmed.startsWith("-") || trimmed.startsWith(">") || !trimmed.startsWith("**")) {
-                        protocolo += trimmed.removePrefix("-").removePrefix(">").trim() + " "
-                    }
-                }
-            }
+        for(i in 0 until pasosArray.length()) {
+            pasos.add(pasosArray.getString(i))
         }
-
-        // Detectar si el nombre ya incluye un número y limpiar "01 -"
-        nombre = nombre.replace(Regex("^\\d+\\s*-\\s*"), "")
-
+        val miniRutina = MiniRutina(
+            nombre = rutina.getString("nombre"),
+            duracionMin = rutina.getInt("duracion_min"),
+            pasos = pasos
+        )
+        
+        val fasesObj = root.getJSONObject("fases")
+        val fases = Fases(
+            actual = fasesObj.getInt("actual"),
+            total = fasesObj.getInt("total")
+        )
+        
         return Sistema(
-            id = id,
-            nombre = nombre,
-            mantra = mantra.trim(),
-            accionDiminuta = accionDiminuta.trim(),
-            pasos = pasos,
-            protocoloPeorDia = protocolo.trim(),
-            faseActual = faseActual
+            id = root.getString("id"),
+            nombre = root.getString("nombre"),
+            icon = root.getString("icon"),
+            quote = root.getString("quote"),
+            identidad = root.getString("identidad"),
+            accionIdeal = root.getString("accion_ideal"),
+            accionDiminuta = root.getString("accion_diminuta"),
+            miniRutina = miniRutina,
+            fases = fases
         )
     }
 }

@@ -20,10 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.misistema.elahora.domain.repository.GithubRepository
-import com.misistema.elahora.presentation.theme.Black
-import com.misistema.elahora.presentation.theme.Typography
-import com.misistema.elahora.presentation.theme.White
+import com.misistema.elahora.presentation.theme.*
 import io.noties.markwon.Markwon
 
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -40,22 +37,22 @@ fun MarkdownReaderScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(fileName.uppercase(), style = Typography.titleLarge) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = White)
+                title = { Text(fileName.uppercase(), style = Typography.titleLarge, color = TextPrimary) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = BgPage)
             )
         },
-        containerColor = White
+        containerColor = BgPage
     ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp)
+                .padding(horizontal = 24.dp)
         ) {
             when {
                 state.isLoading -> {
                     CircularProgressIndicator(
-                        color = Black, 
+                        color = TextPrimary, 
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -63,23 +60,27 @@ fun MarkdownReaderScreen(
                     Text(
                         text = state.error!!, 
                         style = Typography.bodyLarge, 
-                        color = Black,
+                        color = TextPrimary,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
                 state.content != null -> {
-                    AndroidView(
-                        factory = { ctx ->
-                            TextView(ctx).apply {
-                                setTextColor(android.graphics.Color.BLACK)
-                            }
-                        },
-                        update = { textView ->
-                            val markwon = Markwon.create(context)
-                            markwon.setMarkdown(textView, state.content!!)
-                        },
-                        modifier = Modifier.verticalScroll(rememberScrollState())
-                    )
+                    HenryCard(modifier = Modifier.padding(top = 16.dp)) {
+                        AndroidView(
+                            factory = { ctx ->
+                                TextView(ctx).apply {
+                                    setTextColor(android.graphics.Color.parseColor("#333333"))
+                                }
+                            },
+                            update = { textView ->
+                                val markwon = Markwon.create(context)
+                                markwon.setMarkdown(textView, state.content!!)
+                            },
+                            modifier = Modifier
+                                .padding(20.dp)
+                                .verticalScroll(rememberScrollState())
+                        )
+                    }
                 }
             }
         }

@@ -7,7 +7,6 @@ import com.misistema.elahora.domain.model.LogStatus
 import com.misistema.elahora.domain.model.Sistema
 import com.misistema.elahora.domain.usecase.GetActiveSistemaUseCase
 import com.misistema.elahora.domain.usecase.GetWeekLogsUseCase
-import com.misistema.elahora.domain.usecase.ListSistemasUseCase
 import com.misistema.elahora.domain.usecase.SaveDailyLogUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,8 +23,9 @@ import javax.inject.Inject
 data class HomeUiState(
     val isLoading: Boolean = true,
     val activeSistema: Sistema? = null,
-    val relatedSistemas: List<Sistema> = emptyList(), // Para el swipe si es necesario a futuro
-    val todayLog: DailyLog? = null,
+    val selectedDate: String = "",
+    val selectedLog: DailyLog? = null,
+    val weekDates: List<String> = emptyList(),
     val weekLogs: List<DailyLog> = emptyList(),
     val errorMessage: String? = null
 )
@@ -33,7 +33,6 @@ data class HomeUiState(
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getActiveSistema: GetActiveSistemaUseCase,
-    private val listSistemas: ListSistemasUseCase, // Por si implementamos switch on swipe
     private val saveLog: SaveDailyLogUseCase,
     private val getWeekLogs: GetWeekLogsUseCase
 ) : ViewModel() {
@@ -44,7 +43,23 @@ class HomeViewModel @Inject constructor(
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     init {
+        val todayStr = dateFormat.format(Date())
+        val weekDates = getCurrentWeekDates()
+        _state.update { it.copy(selectedDate = todayStr, weekDates = weekDates) }
         loadData()
+    }
+    
+    private fun getCurrentWeekDates(): List<String> {
+        val cal = Calendar.getInstance().apply {
+            firstDayOfWeek = Calendar.MONDAY
+            set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+        }
+        val dates = mutableListOf<String>()
+        for (i in 0..6) {
+            dates.add(dateFormat.format(cal.time))
+            cal.add(Calendar.DAY_OF_MONTH, 1)
+        }
+        return dates
     }
 
     fun loadData() {
@@ -60,7 +75,7 @@ class HomeViewModel @Inject constructor(
                 _state.update { 
                     it.copy(
                         isLoading = false, 
-                        errorMessage = result.exceptionOrNull()?.message ?: "Error desconocido"
+                        errorMessage = result.exceptionOrNull()?.message ?: "Error desconocido. Asegúrate de configurar la app primero."
                     )
                 }
             }
@@ -68,54 +83,54 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun loadLogsForSystem(systemId: String) {
-        val todayStr = dateFormat.format(Date())
-        
-        val cal = Calendar.getInstance().apply {
-            firstDayOfWeek = Calendar.MONDAY
-            set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
-        }
-        val weekStartStr = dateFormat.format(cal.time)
-
+        val weekStartStr = _state.value.weekDates.first()
         val logs = getWeekLogs(systemId, weekStartStr)
-        val todayLog = logs.find { it.date == todayStr }
+        
+        val selectedLog = logs.find { it.date == _state.value.selectedDate }
 
         _state.update { 
             it.copy(
-                todayLog = todayLog,
+                selectedLog = selectedLog,
                 weekLogs = logs
             )
         }
     }
+    
+    fun onSelectDate(date: String) {
+        _state.update { 
+            val log = it.weekLogs.find { l -> l.date == date }
+            it.copy(selectedDate = date, selectedLog = log)
+        }
+    }
 
-    fun onMarkDay(status: LogStatus, dateStr: String? = null, notes: String? = null) {
+    fun onMarkDay(status: LogStatus) {
         val sistema = _state.value.activeSistema ?: return
-        val targetDate = dateStr ?: dateFormat.format(Date())
+        val targetDate = _state.value.selectedDate
 
         viewModelScope.launch {
-            // Preservar notas anteriores si aplican
             val existingLog = _state.value.weekLogs.find { it.date == targetDate }
             
             val log = DailyLog(
                 systemId = sistema.id,
                 date = targetDate,
                 status = status,
-                notes = notes ?: existingLog?.notes
+                notes = existingLog?.notes
             )
             saveLog(log)
-            loadLogsForSystem(sistema.id) // Refrescar UI
+            loadLogsForSystem(sistema.id)
         }
     }
 
-    fun onSaveNote(notes: String, dateStr: String? = null) {
+    fun onSaveNote(notes: String) {
         val sistema = _state.value.activeSistema ?: return
-        val targetDate = dateStr ?: dateFormat.format(Date())
+        val targetDate = _state.value.selectedDate
 
         viewModelScope.launch {
             val existingLog = _state.value.weekLogs.find { it.date == targetDate }
             val log = DailyLog(
                 systemId = sistema.id,
                 date = targetDate,
-                status = existingLog?.status, // mantener estado actual
+                status = existingLog?.status, 
                 notes = notes
             )
             saveLog(log)

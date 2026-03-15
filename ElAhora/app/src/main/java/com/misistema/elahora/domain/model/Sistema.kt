@@ -1,12 +1,24 @@
 package com.misistema.elahora.domain.model
 
 data class Sistema(
-    val id: String, // ej: "01-calidad-sueno"
+    val id: String,
     val nombre: String,
-    val mantra: String,
+    val icon: String,
+    val quote: String,
+    val identidad: String,
+    val accionIdeal: String,
     val accionDiminuta: String,
-    val pasos: List<String>,
-    val protocoloPeorDia: String,
-    val faseActual: Int = 1,
-    val totalFases: Int = 3
+    val miniRutina: MiniRutina,
+    val fases: Fases
+)
+
+data class MiniRutina(
+    val nombre: String,
+    val duracionMin: Int,
+    val pasos: List<String>
+)
+
+data class Fases(
+    val actual: Int,
+    val total: Int
 )

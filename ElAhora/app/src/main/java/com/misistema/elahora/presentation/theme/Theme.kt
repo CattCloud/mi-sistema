@@ -10,15 +10,14 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val LightColorScheme = lightColorScheme(
-    primary = Black,
-    onPrimary = White,
-    secondary = Yellow,
-    onSecondary = Black,
-    tertiary = Violet,
-    background = White,
-    surface = White,
-    onBackground = Black,
-    onSurface = Black
+    primary = TextPrimary,
+    onPrimary = BgCard,
+    secondary = AccentButton,
+    onSecondary = TextPrimary,
+    background = BgPage,
+    surface = BgCard,
+    onBackground = TextPrimary,
+    onSurface = TextPrimary
 )
 
 @Composable
@@ -30,7 +29,7 @@ fun ElAhoraTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = White.toArgb()
+            window.statusBarColor = BgPage.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
         }
     }

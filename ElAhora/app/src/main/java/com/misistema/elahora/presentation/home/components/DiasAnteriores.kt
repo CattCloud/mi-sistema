@@ -16,15 +16,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.misistema.elahora.domain.model.DailyLog
 import com.misistema.elahora.domain.model.LogStatus
-import com.misistema.elahora.presentation.theme.Black
-import com.misistema.elahora.presentation.theme.Cyan
-import com.misistema.elahora.presentation.theme.GrayMuted
-import com.misistema.elahora.presentation.theme.Typography
-import com.misistema.elahora.presentation.theme.White
+import com.misistema.elahora.presentation.theme.*
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -36,7 +33,7 @@ fun DiasAnteriores(
     onDayClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val formatLabel = SimpleDateFormat("E", Locale("es", "ES")) // "lun", "mar"
+    val formatLabel = SimpleDateFormat("E", Locale("es", "ES"))
     val formatFull = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     
     val todayDate = formatFull.format(Date())
@@ -47,8 +44,8 @@ fun DiasAnteriores(
     }
 
     Column(modifier = modifier.fillMaxWidth()) {
-        Text(text = "Días Anteriores", style = Typography.labelSmall)
-        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = "DÍAS ANTERIORES", style = Typography.labelSmall)
+        Spacer(modifier = Modifier.height(12.dp))
         
         Row(modifier = Modifier.fillMaxWidth()) {
             for (i in 0..6) {
@@ -58,9 +55,16 @@ fun DiasAnteriores(
                 
                 val isFuture = dateStr > todayDate
                 val bgColor = when {
-                    isFuture -> GrayMuted.copy(alpha = 0.3f)
-                    log?.status == LogStatus.DONE -> Cyan
-                    else -> White
+                    isFuture -> BgPage
+                    log?.status == LogStatus.DONE -> AccentButton
+                    log?.status == LogStatus.NOT_DONE -> AccentLight
+                    else -> BgCard
+                }
+                
+                val borderColor = when {
+                    isFuture -> Color.Transparent
+                    log?.status != null -> DividerColor
+                    else -> DividerColor.copy(alpha = 0.5f)
                 }
 
                 Box(
@@ -71,8 +75,8 @@ fun DiasAnteriores(
                         .size(40.dp)
                         .background(bgColor, RoundedCornerShape(4.dp))
                         .border(
-                            width = if (isFuture) 1.dp else 2.dp, 
-                            color = if (isFuture) GrayMuted else Black, 
+                            width = 1.dp, 
+                            color = borderColor, 
                             shape = RoundedCornerShape(4.dp)
                         )
                         .clickable(enabled = !isFuture && dateStr != todayDate) {
@@ -82,12 +86,12 @@ fun DiasAnteriores(
                     Text(
                         text = label,
                         style = Typography.labelSmall,
-                        color = if (isFuture) GrayMuted else Black,
+                        color = if (isFuture) TextSecondary else TextPrimary,
                         textAlign = TextAlign.Center
                     )
                 }
                 
-                cal.add(Calendar.DAY_OF_YEAR, 1) // Avanzar al siguiente día
+                cal.add(Calendar.DAY_OF_YEAR, 1)
             }
         }
     }

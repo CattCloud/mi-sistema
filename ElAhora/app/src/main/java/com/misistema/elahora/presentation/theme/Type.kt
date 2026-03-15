@@ -5,27 +5,35 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.intl.LocaleList
 
+// Usaremos un estilo sans-serif limpio similar a Inter.
 val Typography = Typography(
+    // Títulos Principales (ACCION DIMINUTA HOY)
     titleLarge = TextStyle(
-        fontFamily = FontFamily.Default, 
+        fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Bold,
-        fontSize = 24.sp,
+        fontSize = 22.sp,
         lineHeight = 28.sp,
-        letterSpacing = 0.sp
+        letterSpacing = 0.sp,
+        color = TextPrimary
     ),
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    ),
+    // Headers de Sección (IDENTIDAD)
     labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Bold,
-        fontSize = 12.sp,
+        fontSize = 11.sp,
         lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 1.5.sp, // Espaciado amplio para mayúsculas
+        color = TextSecondary
+    ),
+    // Texto de cuerpo normal
+    bodyLarge = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        lineHeight = 22.sp,
+        letterSpacing = 0.5.sp,
+        color = TextSecondary
     )
 )

@@ -13,10 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.misistema.elahora.domain.model.DailyLog
 import com.misistema.elahora.domain.model.LogStatus
-import com.misistema.elahora.presentation.theme.Cyan
-import com.misistema.elahora.presentation.theme.NeuButton
-import com.misistema.elahora.presentation.theme.Typography
-import com.misistema.elahora.presentation.theme.White
+import com.misistema.elahora.presentation.theme.*
 
 @Composable
 fun TrackerHoy(
@@ -25,8 +22,8 @@ fun TrackerHoy(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
-        Text(text = "Rastreo de Hoy", style = Typography.labelSmall)
-        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = "RASTREO DE HOY", style = Typography.labelSmall)
+        Spacer(modifier = Modifier.height(12.dp))
 
         if (todayLog?.status != null) {
             Text(
@@ -36,18 +33,17 @@ fun TrackerHoy(
         } else {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                NeuButton(
-                    text = "No Complí",
-                    backgroundColor = White,
+                HenryButton(
+                    text = "NO CUMPLÍ",
+                    isActive = false,
                     onClick = { onMarkDay(LogStatus.NOT_DONE) },
                     modifier = Modifier.weight(1f)
                 )
-                Spacer(modifier = Modifier.width(16.dp))
-                NeuButton(
-                    text = "✅ Cumplí",
-                    backgroundColor = Cyan,
+                HenryButton(
+                    text = "CUMPLÍ",
+                    isActive = true,
                     onClick = { onMarkDay(LogStatus.DONE) },
                     modifier = Modifier.weight(1f)
                 )

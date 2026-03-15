@@ -9,10 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.misistema.elahora.presentation.theme.NeuCard
-import com.misistema.elahora.presentation.theme.Typography
-import com.misistema.elahora.presentation.theme.Violet
-import com.misistema.elahora.presentation.theme.White
+import com.misistema.elahora.presentation.theme.*
 
 @Composable
 fun AccionCard(
@@ -20,17 +17,13 @@ fun AccionCard(
     pasos: List<String>,
     modifier: Modifier = Modifier
 ) {
-    NeuCard(
-        backgroundColor = Violet,
-        contentColor = White,
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+    HenryCard(modifier = modifier) {
+        Column(modifier = Modifier.padding(20.dp)) {
             Text(
                 text = "⚡ ACCIÓN DIMINUTA",
                 style = Typography.labelSmall
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = accionDiminuta,
                 style = Typography.titleLarge
@@ -42,7 +35,7 @@ fun AccionCard(
                     text = "PASOS A SEGUIR:",
                     style = Typography.labelSmall
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 pasos.forEach { paso ->
                     Text(
                         text = "• $paso",

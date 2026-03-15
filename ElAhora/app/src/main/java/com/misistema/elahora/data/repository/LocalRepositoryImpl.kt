@@ -7,8 +7,11 @@ import com.misistema.elahora.domain.model.DailyLog
 import com.misistema.elahora.domain.model.LogStatus
 import com.misistema.elahora.domain.repository.LocalRepository
 import kotlinx.coroutines.flow.Flow
+import android.content.Context
+import java.io.IOException
 
 class LocalRepositoryImpl(
+    private val context: Context,
     private val dao: DailyLogDao,
     private val prefs: SistemaPreferences
 ) : LocalRepository {
@@ -55,6 +58,19 @@ class LocalRepositoryImpl(
                 status = entity.status?.let { LogStatus.valueOf(it) },
                 notes = entity.notes
             )
+        }
+    }
+
+    override suspend fun getLocalSystemJson(systemId: String): String? {
+        return try {
+            val inputStream = context.assets.open("sistemas/$systemId.json")
+            val size = inputStream.available()
+            val buffer = ByteArray(size)
+            inputStream.read(buffer)
+            inputStream.close()
+            String(buffer, Charsets.UTF_8)
+        } catch (e: IOException) {
+            null
         }
     }
 }
