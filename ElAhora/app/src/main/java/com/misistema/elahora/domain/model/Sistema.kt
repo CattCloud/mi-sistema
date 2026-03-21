@@ -9,7 +9,9 @@ data class Sistema(
     val accionIdeal: String,
     val accionDiminuta: String,
     val miniRutina: MiniRutina,
-    val fases: Fases
+    val fases: Fases,
+    val protocoloPeorDia: String = "Si algo falla, haz lo mínimo indispensable.",
+    val theme: com.misistema.elahora.presentation.theme.SystemTheme? = null
 )
 
 data class MiniRutina(

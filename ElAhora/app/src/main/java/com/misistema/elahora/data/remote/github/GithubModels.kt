@@ -13,3 +13,9 @@ data class GithubFile(
     @SerializedName("download_url") val downloadUrl: String,
     val type: String
 )
+
+data class GithubPutRequest(
+    val message: String,
+    val content: String,
+    val sha: String? = null
+)

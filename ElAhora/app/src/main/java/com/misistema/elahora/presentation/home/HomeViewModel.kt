@@ -5,13 +5,15 @@ import androidx.lifecycle.viewModelScope
 import com.misistema.elahora.domain.model.DailyLog
 import com.misistema.elahora.domain.model.LogStatus
 import com.misistema.elahora.domain.model.Sistema
-import com.misistema.elahora.domain.usecase.GetActiveSistemaUseCase
+import com.misistema.elahora.domain.model.SistemaParser
+import com.misistema.elahora.domain.repository.LocalRepository
 import com.misistema.elahora.domain.usecase.GetWeekLogsUseCase
 import com.misistema.elahora.domain.usecase.SaveDailyLogUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -22,17 +24,17 @@ import javax.inject.Inject
 
 data class HomeUiState(
     val isLoading: Boolean = true,
-    val activeSistema: Sistema? = null,
+    val sistemas: List<Sistema> = emptyList(),
+    val activeSistemaId: String = "",
     val selectedDate: String = "",
-    val selectedLog: DailyLog? = null,
     val weekDates: List<String> = emptyList(),
-    val weekLogs: List<DailyLog> = emptyList(),
+    val weekLogsMap: Map<String, List<DailyLog>> = emptyMap(),
     val errorMessage: String? = null
 )
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val getActiveSistema: GetActiveSistemaUseCase,
+    private val localRepo: LocalRepository,
     private val saveLog: SaveDailyLogUseCase,
     private val getWeekLogs: GetWeekLogsUseCase
 ) : ViewModel() {
@@ -66,18 +68,33 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, errorMessage = null) }
             
-            val result = getActiveSistema()
-            if (result.isSuccess) {
-                val sistema = result.getOrNull()!!
-                _state.update { it.copy(activeSistema = sistema, isLoading = false) }
-                loadLogsForSystem(sistema.id)
-            } else {
-                _state.update { 
-                    it.copy(
-                        isLoading = false, 
-                        errorMessage = result.exceptionOrNull()?.message ?: "Error desconocido. Asegúrate de configurar la app primero."
-                    )
+            try {
+                val activeId = localRepo.activeSystemId.first() ?: ""
+                _state.update { it.copy(activeSistemaId = activeId) }
+
+                val allIds = localRepo.listAvailableSystems()
+                val cachedIds = localRepo.listCachedSystems()
+                val combined = (allIds + cachedIds).distinct()
+                
+                val sistemasLoaded = combined.mapNotNull { id ->
+                    val json = localRepo.getCachedSystemJson(id) ?: localRepo.getLocalSystemJson(id)
+                    if (json != null) {
+                        try { SistemaParser.parseJson(json) } catch (e: Exception) { null }
+                    } else null
                 }
+                
+                if (sistemasLoaded.isEmpty()) {
+                    _state.update { it.copy(isLoading = false, errorMessage = "No hay sistemas disponibles") }
+                    return@launch
+                }
+
+                _state.update { it.copy(sistemas = sistemasLoaded, isLoading = false) }
+                
+                sistemasLoaded.forEach { sistema ->
+                    loadLogsForSystem(sistema.id)
+                }
+            } catch (e: Exception) {
+                 _state.update { it.copy(isLoading = false, errorMessage = e.message ?: "Error desconocido") }
             }
         }
     }
@@ -86,55 +103,58 @@ class HomeViewModel @Inject constructor(
         val weekStartStr = _state.value.weekDates.first()
         val logs = getWeekLogs(systemId, weekStartStr)
         
-        val selectedLog = logs.find { it.date == _state.value.selectedDate }
-
         _state.update { 
-            it.copy(
-                selectedLog = selectedLog,
-                weekLogs = logs
-            )
+            val newLogsMap = it.weekLogsMap.toMutableMap()
+            newLogsMap[systemId] = logs
+            it.copy(weekLogsMap = newLogsMap)
+        }
+    }
+
+    fun onSystemSwiped(newSystemId: String) {
+        if (_state.value.activeSistemaId != newSystemId) {
+            _state.update { it.copy(activeSistemaId = newSystemId) }
+            viewModelScope.launch {
+                localRepo.saveActiveSystemId(newSystemId)
+            }
         }
     }
     
     fun onSelectDate(date: String) {
-        _state.update { 
-            val log = it.weekLogs.find { l -> l.date == date }
-            it.copy(selectedDate = date, selectedLog = log)
-        }
+        _state.update { it.copy(selectedDate = date) }
     }
 
-    fun onMarkDay(status: LogStatus) {
-        val sistema = _state.value.activeSistema ?: return
+    fun onMarkDay(systemId: String, status: LogStatus) {
         val targetDate = _state.value.selectedDate
 
         viewModelScope.launch {
-            val existingLog = _state.value.weekLogs.find { it.date == targetDate }
+            val logs = _state.value.weekLogsMap[systemId] ?: emptyList()
+            val existingLog = logs.find { it.date == targetDate }
             
             val log = DailyLog(
-                systemId = sistema.id,
+                systemId = systemId,
                 date = targetDate,
                 status = status,
                 notes = existingLog?.notes
             )
             saveLog(log)
-            loadLogsForSystem(sistema.id)
+            loadLogsForSystem(systemId)
         }
     }
 
-    fun onSaveNote(notes: String) {
-        val sistema = _state.value.activeSistema ?: return
+    fun onSaveNote(systemId: String, notes: String) {
         val targetDate = _state.value.selectedDate
 
         viewModelScope.launch {
-            val existingLog = _state.value.weekLogs.find { it.date == targetDate }
+            val logs = _state.value.weekLogsMap[systemId] ?: emptyList()
+            val existingLog = logs.find { it.date == targetDate }
             val log = DailyLog(
-                systemId = sistema.id,
+                systemId = systemId,
                 date = targetDate,
                 status = existingLog?.status, 
                 notes = notes
             )
             saveLog(log)
-            loadLogsForSystem(sistema.id)
+            loadLogsForSystem(systemId)
         }
     }
 }

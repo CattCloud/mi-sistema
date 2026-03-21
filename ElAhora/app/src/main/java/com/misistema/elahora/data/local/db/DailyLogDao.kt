@@ -15,4 +15,7 @@ interface DailyLogDao {
 
     @Query("SELECT * FROM daily_log WHERE systemId = :systemId AND date >= :weekStart ORDER BY date ASC")
     suspend fun getLogsForWeek(systemId: String, weekStart: String): List<DailyLogEntity>
+
+    @Query("SELECT * FROM daily_log WHERE systemId = :systemId ORDER BY date ASC")
+    suspend fun getAllLogsForSystem(systemId: String): List<DailyLogEntity>
 }

@@ -11,42 +11,60 @@ class GetActiveSistemaUseCase(
     private val localRepo: LocalRepository
 ) {
     suspend operator fun invoke(): Result<Sistema> {
-        val activeId = localRepo.activeSystemId.firstOrNull() ?: return Result.failure(Exception("No hay sistema activo configurado"))
-        
-        // 1. Intentar cargar desde Local Assets primero (como prioridad para este dev loop local)
-        val localJson = localRepo.getLocalSystemJson(activeId)
-        if (localJson != null) {
-            return try {
-                Result.success(SistemaParser.parseJson(localJson))
+        val activeId = localRepo.activeSystemId.firstOrNull()
+            ?: return Result.failure(Exception("No hay sistema activo configurado"))
+
+        // --- PRIORIDAD 1: Caché local (sistemas descargados previamente de GitHub) ---
+        val cachedJson = localRepo.getCachedSystemJson(activeId)
+        if (cachedJson != null) {
+            try {
+                return Result.success(SistemaParser.parseJson(cachedJson))
             } catch (e: Exception) {
-                Result.failure(Exception("Error parseando JSON local de activos: ${e.message}"))
+                // Si el caché está corrompido, continuar al siguiente nivel
             }
         }
-        
-        // 2. Si no existe en local, intentar desde Github 
+
+        // --- PRIORIDAD 2: Assets (archivos de fábrica incluidos en el APK) ---
+        val assetsJson = localRepo.getLocalSystemJson(activeId)
+        if (assetsJson != null) {
+            return try {
+                Result.success(SistemaParser.parseJson(assetsJson))
+            } catch (e: Exception) {
+                Result.failure(Exception("Error parseando JSON de assets: ${e.message}"))
+            }
+        }
+
+        // --- PRIORIDAD 3: GitHub (descarga en tiempo real y guarda en caché) ---
         val token = localRepo.githubToken.firstOrNull()
-        val userRepo = localRepo.githubRepo.firstOrNull() ?: return Result.failure(Exception("Repositorio Github no configurado"))
+        val userRepo = localRepo.githubRepo.firstOrNull()
+            ?: return Result.failure(Exception("Sin internet y sin datos locales. Configura GitHub o conectate a la red."))
 
         val parts = userRepo.split("/")
-        if (parts.size != 2) return Result.failure(Exception("Repo inválido"))
+        if (parts.size != 2) return Result.failure(Exception("Repo inválido. Usa formato owner/repo"))
 
         val listResult = githubRepo.listSistemas(parts[0], parts[1], token)
-        if (listResult.isFailure) return Result.failure(listResult.exceptionOrNull()!!)
+        if (listResult.isFailure) {
+            return Result.failure(Exception("Sistema no encontrado localmente y sin conexión a GitHub."))
+        }
 
         val files = listResult.getOrNull() ?: emptyList()
-        // Buscar el archivo con ese ID (probablemente termine en .json ahora)
-        val match = files.find { it.name.contains(activeId, ignoreCase = true) } 
-            ?: return Result.failure(Exception("Archivo del sistema no encontrado (ni en local ni en remoto)"))
+        val match = files.find { it.name.contains(activeId, ignoreCase = true) }
+            ?: return Result.failure(Exception("Sistema '$activeId' no encontrado en GitHub."))
 
         val downloadResult = githubRepo.downloadSistema(match.downloadUrl, token)
-        if (downloadResult.isFailure) return Result.failure(downloadResult.exceptionOrNull()!!)
+        if (downloadResult.isFailure) {
+            return Result.failure(Exception("Error al descargar el sistema desde GitHub."))
+        }
 
         val jsonString = downloadResult.getOrNull() ?: ""
+
         return try {
             val sistema = SistemaParser.parseJson(jsonString)
+            // Guardar en caché para próximas ejecuciones offline
+            localRepo.saveCachedSystemJson(activeId, jsonString)
             Result.success(sistema)
         } catch (e: Exception) {
-            Result.failure(Exception("Error parseando JSON remoto: ${e.message}"))
+            Result.failure(Exception("Error parseando JSON de GitHub: ${e.message}"))
         }
     }
 }

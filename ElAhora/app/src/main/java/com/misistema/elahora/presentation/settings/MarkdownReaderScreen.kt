@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -37,7 +38,7 @@ fun MarkdownReaderScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(fileName.uppercase(), style = Typography.titleLarge, color = TextPrimary) },
+                title = { Text(fileName.uppercase(), style = MaterialTheme.typography.titleLarge, color = TextPrimary) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgPage)
             )
         },
@@ -59,13 +60,13 @@ fun MarkdownReaderScreen(
                 state.error != null -> {
                     Text(
                         text = state.error!!, 
-                        style = Typography.bodyLarge, 
+                        style = MaterialTheme.typography.bodyLarge, 
                         color = TextPrimary,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
                 state.content != null -> {
-                    HenryCard(modifier = Modifier.padding(top = 16.dp)) {
+                    ElAhoraCard(modifier = Modifier.padding(top = 16.dp)) {
                         AndroidView(
                             factory = { ctx ->
                                 TextView(ctx).apply {

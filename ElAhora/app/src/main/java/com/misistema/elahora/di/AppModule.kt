@@ -14,6 +14,7 @@ import com.misistema.elahora.domain.usecase.GetActiveSistemaUseCase
 import com.misistema.elahora.domain.usecase.GetWeekLogsUseCase
 import com.misistema.elahora.domain.usecase.ListSistemasUseCase
 import com.misistema.elahora.domain.usecase.SaveDailyLogUseCase
+import com.misistema.elahora.domain.usecase.ExportLogsToGithubUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -120,5 +121,14 @@ object AppModule {
     @Singleton
     fun provideGetWeekLogsUseCase(localRepo: LocalRepository): GetWeekLogsUseCase {
         return GetWeekLogsUseCase(localRepo)
+    }
+
+    @Provides
+    @Singleton
+    fun provideExportLogsToGithubUseCase(
+        githubRepo: GithubRepository,
+        localRepo: LocalRepository
+    ): ExportLogsToGithubUseCase {
+        return ExportLogsToGithubUseCase(githubRepo, localRepo)
     }
 }

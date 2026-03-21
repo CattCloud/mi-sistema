@@ -15,6 +15,13 @@ interface LocalRepository {
     suspend fun saveDailyLog(log: DailyLog)
     suspend fun getDailyLog(systemId: String, date: String): DailyLog?
     suspend fun getWeekLogs(systemId: String, weekStart: String): List<DailyLog>
+    suspend fun getAllLogsForSystem(systemId: String): List<DailyLog>
     
     suspend fun getLocalSystemJson(systemId: String): String?
+    suspend fun listAvailableSystems(): List<String>
+    
+    // Cache de sistemas descargados de GitHub
+    suspend fun saveCachedSystemJson(systemId: String, jsonContent: String)
+    suspend fun getCachedSystemJson(systemId: String): String?
+    suspend fun listCachedSystems(): List<String>
 }

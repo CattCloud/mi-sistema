@@ -1,90 +1,105 @@
 package com.misistema.elahora.presentation.theme
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun HenryCard(
+fun ElAhoraCard(
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
+    containerColor: Color = CardSurface,
+    contentColor: Color = TextPrimary,
+    elevation: Dp = 2.dp,
+    shadowColor: Color = Color.Black.copy(alpha = 0.05f),
+    content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(6.dp),
-        colors = CardDefaults.cardColors(containerColor = BgCard),
-        border = BorderStroke(1.dp, DividerColor),
+        modifier = modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = elevation,
+                shape = RoundedCornerShape(18.dp),
+                ambientColor = shadowColor,
+                spotColor = shadowColor
+            ),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = containerColor,
+            contentColor = contentColor
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        content()
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
+        ) {
+            content()
+        }
     }
 }
 
 @Composable
-fun HenryButton(
+fun ElAhoraButton(
     text: String,
-    isActive: Boolean = false,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    backgroundColor: Color? = null,
+    textColor: Color = Color.White,
+    elevation: Dp = 3.dp,
+    isActive: Boolean = true
 ) {
+    val bg = backgroundColor ?: LocalSystemTheme.current.accentMain
+    
     Button(
         onClick = onClick,
-        shape = RoundedCornerShape(4.dp),
+        enabled = isActive,
+        shape = RoundedCornerShape(14.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isActive) AccentButtonActive else AccentButton,
-            contentColor = if (isActive) TextPrimary else TextSecondary
+            containerColor = bg,
+            contentColor = textColor,
+            disabledContainerColor = bg.copy(alpha = 0.5f),
+            disabledContentColor = textColor.copy(alpha = 0.7f)
         ),
-        border = BorderStroke(1.dp, DividerColor),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-        modifier = modifier
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 13.dp),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = elevation),
+        modifier = modifier.fillMaxWidth()
     ) {
         Text(
             text = text,
-            style = Typography.bodyLarge,
-            fontWeight = FontWeight.Medium
+            style = MaterialTheme.typography.labelLarge
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HenryDayTag(
-    dayName: String,
-    isSelected: Boolean = false,
-    onClick: () -> Unit,
+fun ElAhoraInput(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(4.dp),
-        color = if (isSelected) AccentButton else AccentLight,
-        border = BorderStroke(1.dp, if (isSelected) DividerColor else Color.Transparent),
-        modifier = modifier
-    ) {
-        Box(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = dayName,
-                style = Typography.bodyLarge,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                color = if (isSelected) TextPrimary else TextSecondary
-            )
-        }
-    }
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = { Text(placeholder, color = LocalSystemTheme.current.accentMid, style = MaterialTheme.typography.bodyLarge) },
+        colors = TextFieldDefaults.colors(
+            unfocusedContainerColor = BgPage,
+            focusedContainerColor = BgPage,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent,
+            cursorColor = LocalSystemTheme.current.accentMain,
+            focusedTextColor = TextPrimary,
+            unfocusedTextColor = TextPrimary
+        ),
+        shape = RoundedCornerShape(10.dp),
+        textStyle = MaterialTheme.typography.bodyLarge,
+        modifier = modifier.fillMaxWidth()
+    )
 }
