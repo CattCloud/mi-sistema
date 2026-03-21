@@ -97,7 +97,7 @@ fun SettingsScreen(
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     
-                    Text("Token de Acceso Github", style = MaterialTheme.typography.bodyLarge, color = LocalSystemTheme.current.accentMid)
+                    Text("Token de Acceso Github (opcional)", style = MaterialTheme.typography.bodyLarge, color = LocalSystemTheme.current.accentMid)
                     TextField(
                         value = state.inputToken,
                         onValueChange = viewModel::onInputTokenChange,
@@ -112,8 +112,18 @@ fun SettingsScreen(
                             unfocusedTextColor = TextPrimary
                         ),
                         singleLine = true,
-                        placeholder = { Text("ghp_...", color = LocalSystemTheme.current.accentMid.copy(alpha = 0.5f)) }
+                        placeholder = { Text("ghp_... (requerido para exportar)", color = LocalSystemTheme.current.accentMid.copy(alpha = 0.5f)) }
                     )
+                    
+                    // Mensaje de aviso sobre token justo debajo del campo
+                    if (state.githubRepo.isNotEmpty() && state.githubToken.isEmpty()) {
+                        Text(
+                            text = "Sin token solo puedes leer repos públicos. Para exportar registros, agrega un token.",
+                            color = LocalSystemTheme.current.accentMid,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 6.dp, start = 4.dp)
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(20.dp))
 
@@ -126,9 +136,41 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
+                    // Botón ACTUALIZAR (solo repo requerido)
+                    if (state.githubRepo.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        ElAhoraButton(
+                            text = if (state.syncStatus == SyncStatus.LOADING) "DESCARGANDO SISTEMAS..." else "ACTUALIZAR SISTEMAS DESDE GITHUB",
+                            isActive = state.syncStatus != SyncStatus.LOADING,
+                            onClick = {
+                                if (state.syncStatus != SyncStatus.LOADING) viewModel.onSyncSystems()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    // Botón EXPORTAR (requiere token)
+                    if (state.githubRepo.isNotEmpty() && state.githubToken.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        ElAhoraButton(
+                            text = if (state.exportStatus == ExportStatus.LOADING) "EXPORTANDO..." else "EXPORTAR REGISTROS A GITHUB",
+                            isActive = state.exportStatus != ExportStatus.LOADING,
+                            onClick = {
+                                if (state.exportStatus != ExportStatus.LOADING) viewModel.onExportLogs()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        if (state.exportStatus == ExportStatus.SUCCESS) {
+                            Text("Registros exportados.", color = LocalSystemTheme.current.accentMid, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 8.dp))
+                        } else if (state.exportStatus == ExportStatus.ERROR) {
+                            Text(state.exportErrorMessage ?: "Error", color = Color(0xFFC65555), style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 8.dp))
+                        }
+                    }
+
+                    // Mensaje de estado (conexión)
                     if (state.syncStatus == SyncStatus.SUCCESS) {
                         Text(
-                            text = "Conectado exitosamente.",
+                            text = "Conexión exitosa.",
                             color = LocalSystemTheme.current.accentMid,
                             style = MaterialTheme.typography.labelSmall,
                             modifier = Modifier.padding(top = 12.dp)
@@ -136,7 +178,7 @@ fun SettingsScreen(
                     } else if (state.syncStatus == SyncStatus.ERROR) {
                         Text(
                             text = state.syncErrorMessage ?: "Error",
-                            color = Color(0xFFC65555), // Un rojo coral sutil (serio)
+                            color = Color(0xFFC65555),
                             style = MaterialTheme.typography.labelSmall,
                             modifier = Modifier.padding(top = 12.dp)
                         )
@@ -150,48 +192,9 @@ fun SettingsScreen(
             ElAhoraCard {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Text("SISTEMA ACTIVO", style = MaterialTheme.typography.labelSmall)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("Elige el sistema a trackear", style = MaterialTheme.typography.bodyLarge, color = LocalSystemTheme.current.accentMid)
-                    
-                    // Botón de sincronización (Solo requiere Repo si es público)
-                    if (state.githubRepo.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        ElAhoraButton(
-                            text = if (state.syncStatus == SyncStatus.LOADING) "SINCRONIZANDO SISTEMAS..." else "ACTUALIZAR DESDE GITHUB",
-                            isActive = state.syncStatus != SyncStatus.LOADING,
-                            onClick = {
-                                if (state.syncStatus != SyncStatus.LOADING) viewModel.onSyncSystems()
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-
-                    // Botón de exportación (Requiere Token obligatoriamente)
-                    if (state.githubRepo.isNotEmpty() && state.githubToken.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        ElAhoraButton(
-                            text = if (state.exportStatus == ExportStatus.LOADING) "EXPORTANDO REGISTROS..." else "EXPORTAR REGISTROS A GITHUB",
-                            isActive = state.exportStatus != ExportStatus.LOADING,
-                            onClick = {
-                                if (state.exportStatus != ExportStatus.LOADING) viewModel.onExportLogs()
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        
-                        if (state.exportStatus == ExportStatus.SUCCESS) {
-                            Text("Registros exportados exitosamente.", color = LocalSystemTheme.current.accentMid, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 8.dp))
-                        } else if (state.exportStatus == ExportStatus.ERROR) {
-                            Text(state.exportErrorMessage ?: "Error", color = Color(0xFFC65555), style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 8.dp))
-                        }
-                    } else if (state.githubRepo.isNotEmpty() && state.githubToken.isEmpty()) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Agrega un Token para exportar tus registros.",
-                            color = LocalSystemTheme.current.accentMid,
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(horizontal = 4.dp)
-                        )
-                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Elige cuál sistema quieres seguir hoy", style = MaterialTheme.typography.bodyLarge, color = LocalSystemTheme.current.accentMid)
+                    Spacer(modifier = Modifier.height(12.dp))
                     
                     var expanded by remember { mutableStateOf(false) }
 

@@ -15,7 +15,7 @@ class GithubRepositoryImpl(
         return withContext(Dispatchers.IO) {
             try {
                 val authHeader = token?.takeIf { it.isNotBlank() }?.let { "Bearer $it" }
-                val response = api.getSistemas(owner, repo, authHeader)
+                val response = api.getSistemas(owner, repo, "elahora-data", authHeader)
                 Result.success(response)
             } catch (e: Exception) {
                 Result.failure(e)

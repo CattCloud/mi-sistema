@@ -10,11 +10,12 @@ import retrofit2.http.Url
 
 interface GithubApiService {
     
-    // Lista los archivos de la subcarpeta "sistemas"
-    @GET("repos/{owner}/{repo}/contents/sistemas")
+    // Lista los archivos de una carpeta en el repo (ej: "sistemas")
+    @GET("repos/{owner}/{repo}/contents/{path}")
     suspend fun getSistemas(
         @Path("owner") owner: String,
         @Path("repo") repo: String,
+        @Path("path", encoded = true) path: String,
         @Header("Authorization") authHeader: String?
     ): List<GithubFile>
 

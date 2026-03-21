@@ -108,11 +108,19 @@ class SettingsViewModel @Inject constructor(
      */
     fun onSyncSystems() {
         val token = _state.value.githubToken.takeIf { it.isNotEmpty() }
-        val repo = _state.value.githubRepo
-        if (repo.isEmpty()) return
+            ?: _state.value.inputToken.trim().takeIf { it.isNotEmpty() }
+        // Usar el repo guardado, o si no, el que está escrito en el input
+        val repo = _state.value.githubRepo.ifEmpty { _state.value.inputRepo.trim() }
+        if (repo.isEmpty()) {
+            _state.update { it.copy(syncStatus = SyncStatus.ERROR, syncErrorMessage = "Ingresa el repositorio primero.") }
+            return
+        }
 
         val parts = repo.split("/")
-        if (parts.size != 2) return
+        if (parts.size != 2) {
+            _state.update { it.copy(syncStatus = SyncStatus.ERROR, syncErrorMessage = "Formato inválido. Usa owner/repo") }
+            return
+        }
 
         _state.update { it.copy(syncStatus = SyncStatus.LOADING, syncErrorMessage = null) }
 
@@ -121,6 +129,11 @@ class SettingsViewModel @Inject constructor(
             if (listResult.isSuccess) {
                 val files = listResult.getOrNull() ?: emptyList()
                 val jsonFiles = files.filter { it.name.endsWith(".json") }
+
+                if (jsonFiles.isEmpty()) {
+                    _state.update { it.copy(syncStatus = SyncStatus.ERROR, syncErrorMessage = "No se encontraron archivos .json en la carpeta 'sistemas/' del repo.") }
+                    return@launch
+                }
 
                 // Descargar cada sistema y guardarlo en caché
                 jsonFiles.forEach { file ->
@@ -135,7 +148,8 @@ class SettingsViewModel @Inject constructor(
                 loadSystems()
                 _state.update { it.copy(syncStatus = SyncStatus.SUCCESS) }
             } else {
-                _state.update { it.copy(syncStatus = SyncStatus.ERROR, syncErrorMessage = "No se pudo sincronizar sistemas desde GitHub.") }
+                val errorMsg = listResult.exceptionOrNull()?.message ?: "Error desconocido"
+                _state.update { it.copy(syncStatus = SyncStatus.ERROR, syncErrorMessage = "Error GitHub: $errorMsg") }
             }
         }
     }
