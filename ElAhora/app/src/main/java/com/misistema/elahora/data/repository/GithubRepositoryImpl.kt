@@ -16,7 +16,7 @@ class GithubRepositoryImpl(
             try {
                 val authHeader = token?.takeIf { it.isNotBlank() }?.let { "Bearer $it" }
                 val response = api.getSistemas(owner, repo, authHeader)
-                Result.success(response.filter { it.name.endsWith(".md") })
+                Result.success(response)
             } catch (e: Exception) {
                 Result.failure(e)
             }

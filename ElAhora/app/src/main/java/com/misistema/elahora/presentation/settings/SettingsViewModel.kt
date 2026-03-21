@@ -107,9 +107,9 @@ class SettingsViewModel @Inject constructor(
      * los guarda en caché y actualiza el selector.
      */
     fun onSyncSystems() {
-        val token = _state.value.githubToken
+        val token = _state.value.githubToken.takeIf { it.isNotEmpty() }
         val repo = _state.value.githubRepo
-        if (token.isEmpty() || repo.isEmpty()) return
+        if (repo.isEmpty()) return
 
         val parts = repo.split("/")
         if (parts.size != 2) return
