@@ -143,8 +143,8 @@ class SettingsViewModel @Inject constructor(
         val token = _state.value.inputToken.trim()
         val repo = _state.value.inputRepo.trim()
 
-        if (token.isEmpty() || repo.isEmpty()) {
-            _state.update { it.copy(syncStatus = SyncStatus.ERROR, syncErrorMessage = "Completa ambos campos.") }
+        if (repo.isEmpty()) {
+            _state.update { it.copy(syncStatus = SyncStatus.ERROR, syncErrorMessage = "Completa el repositorio.") }
             return
         }
 
