@@ -160,32 +160,36 @@ fun SystemPageContent(
             
             // Derecha: Iconos y Puntos
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                // Luna
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .shadow(2.dp, CircleShape)
-                        .background(LocalSystemTheme.current.accentLight, CircleShape),
-                    contentAlignment = Alignment.Center
+                // Ícono del sistema + Engranaje en fila
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    val icon = when (sistema.icon) {
-                        "moon" -> Icons.Rounded.NightsStay
-                        "sun" -> Icons.Rounded.WbSunny
-                        else -> Icons.Rounded.Settings
+                    // Ícono representativo del sistema
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .shadow(2.dp, CircleShape)
+                            .background(LocalSystemTheme.current.accentLight, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        val icon = when (sistema.icon) {
+                            "moon" -> Icons.Rounded.NightsStay
+                            "sun" -> Icons.Rounded.WbSunny
+                            else -> Icons.Rounded.Settings
+                        }
+                        Icon(icon, contentDescription = null, tint = LocalSystemTheme.current.accentMain, modifier = Modifier.size(18.dp))
                     }
-                    Icon(icon, contentDescription = null, tint = LocalSystemTheme.current.accentMain, modifier = Modifier.size(18.dp))
+
+                    // Engranaje al lado
+                    IconButton(onClick = onNavigateToSettings, modifier = Modifier.size(32.dp)) {
+                        Icon(Icons.Rounded.Settings, contentDescription = "Settings", tint = LocalSystemTheme.current.accentMid, modifier = Modifier.size(18.dp))
+                    }
                 }
-                
-                Spacer(modifier = Modifier.height(4.dp))
-                
-                // Engranaje
-                IconButton(onClick = onNavigateToSettings, modifier = Modifier.size(24.dp)) {
-                    Icon(Icons.Rounded.Settings, contentDescription = "Settings", tint = LocalSystemTheme.current.accentMid, modifier = Modifier.size(18.dp))
-                }
-                
-                Spacer(modifier = Modifier.height(4.dp))
-                
-                // Dot Indicator
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                // Dot Indicator centrado debajo
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     for (i in 0 until totalSystems) {
                         Box(

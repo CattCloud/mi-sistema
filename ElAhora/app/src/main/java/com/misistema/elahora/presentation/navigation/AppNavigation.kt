@@ -26,6 +26,7 @@ fun AppNavigation() {
         }
         composable("settings") {
             SettingsScreen(
+                onNavigateBack = { navController.popBackStack() },
                 onNavigateToMarkdown = { fileName ->
                     navController.navigate("markdown/$fileName")
                 }

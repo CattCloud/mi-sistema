@@ -25,7 +25,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -35,6 +38,7 @@ import com.misistema.elahora.presentation.theme.*
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
+    onNavigateBack: () -> Unit = {},
     onNavigateToMarkdown: (String) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
@@ -43,6 +47,15 @@ fun SettingsScreen(
         topBar = {
             TopAppBar(
                 title = { Text("CONFIGURACIÓN", style = MaterialTheme.typography.labelSmall) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.Rounded.ArrowBack,
+                            contentDescription = "Regresar",
+                            tint = TextPrimary
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgPage)
             )
         },
@@ -139,8 +152,8 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     Text("Elige el sistema a trackear", style = MaterialTheme.typography.bodyLarge, color = LocalSystemTheme.current.accentMid)
                     
-                    // Botón de sincronización desde GitHub
-                    if (state.githubToken.isNotEmpty() && state.githubRepo.isNotEmpty()) {
+                    // Botón de sincronización (Solo requiere Repo si es público)
+                    if (state.githubRepo.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(8.dp))
                         ElAhoraButton(
                             text = if (state.syncStatus == SyncStatus.LOADING) "SINCRONIZANDO SISTEMAS..." else "ACTUALIZAR DESDE GITHUB",
@@ -150,9 +163,11 @@ fun SettingsScreen(
                             },
                             modifier = Modifier.fillMaxWidth()
                         )
-                        
+                    }
+
+                    // Botón de exportación (Requiere Token obligatoriamente)
+                    if (state.githubRepo.isNotEmpty() && state.githubToken.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(12.dp))
-                        
                         ElAhoraButton(
                             text = if (state.exportStatus == ExportStatus.LOADING) "EXPORTANDO REGISTROS..." else "EXPORTAR REGISTROS A GITHUB",
                             isActive = state.exportStatus != ExportStatus.LOADING,
@@ -167,6 +182,14 @@ fun SettingsScreen(
                         } else if (state.exportStatus == ExportStatus.ERROR) {
                             Text(state.exportErrorMessage ?: "Error", color = Color(0xFFC65555), style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 8.dp))
                         }
+                    } else if (state.githubRepo.isNotEmpty() && state.githubToken.isEmpty()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Agrega un Token para exportar tus registros.",
+                            color = LocalSystemTheme.current.accentMid,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(horizontal = 4.dp)
+                        )
                     }
                     
                     var expanded by remember { mutableStateOf(false) }
