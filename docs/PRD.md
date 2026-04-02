@@ -1,7 +1,7 @@
 # 📋 PRD — App Android: Mi Sistema Personal
 
-> **Estado:** Borrador v1.1 — Actualizado con clarificaciones. Pendiente de aprobación del usuario.
-> **Fecha:** 2026-03-14
+> **Estado:** Aprobado v1.2 — Actualizado al cierre del Sprint 14+
+> **Fecha:** 2026-03-21
 > **Autor:** Orquestador SDLC Android
 
 ---
@@ -10,7 +10,7 @@
 
 ### Problema a resolver
 
-El usuario tiene un sistema de vida documentado en archivos Markdown (alojados en GitHub) y actualmente debe abrir su computador para consultarlos. No existe una forma móvil, rápida y orientada al día presente para:
+El usuario tiene un sistema de vida documentado en archivos (alojados en GitHub) y actualmente debe abrir su computador para consultarlos. No existe una forma móvil, rápida y orientada al día presente para:
 1. **Leer** qué dice su sistema (normas, proceso, protocolos).
 2. **Registrar** si cumplió o no con la acción del sistema ese día, con notas opcionales.
 
@@ -18,7 +18,7 @@ La app elimina esa fricción y materializa el principio del sistema: _"Enfócate
 
 ### Solución
 
-Aplicación Android nativa, exclusivamente para uso personal, que sincroniza los documentos del sistema desde GitHub y provee un tracker diario minimalista con frase motivacional contextualizada.
+Aplicación Android nativa, exclusivamente para uso personal, que sincroniza sistemas desde GitHub en formato JSON y provee un tracker diario minimalista con frase motivacional contextualizada. Adicionalmente permite exportar el avance nuevamente hacia GitHub.
 
 ---
 
@@ -35,119 +35,77 @@ Perfil psicológico a tener en cuenta para el diseño de UX:
 
 ## 3. Funcionalidades del MVP
 
-### 3.1 Pantalla Principal — El Día de Hoy
+### 3.1 Pantalla Principal (El Día de Hoy)
 
-> **[CLARIFICACIÓN v1.1]** Al abrir la app, el sistema activo se muestra **inmediatamente**. Sin pantallas de bienvenida, sin selección previa. Cero fricción.
-
-- **Frase de anclaje al presente** en la parte superior (rotativa, configurable). Ej:
-  - _"Hoy es un nuevo día."_
-  - _"Enfócate solo en hoy. 1% mejor."_
-  - _"No hay ayer aquí. Solo esto."_
-- **Fecha actual** visible (sin semáforo visual de racha).
-- **Sección del sistema** — Ver §3.2 para el diseño visual estratégico.
-- **Tracker del día (sección inferior):**
-  - Tarjeta destacada con estado del día: `[Sin marcar]` / `✅ Cumplí` / `❌ No cumplí`.
-  - Campo de texto opcional para observaciones (~200 caracteres).
-  - Una vez marcado, cambia al estado correspondiente (editable en el mismo día).
-
-**Swipe horizontal para cambiar de sistema:**
-> **[CLARIFICACIÓN v1.1]** Deslizar el dedo a la derecha o izquierda en la pantalla principal carga el siguiente/anterior sistema. El cambio es instantáneo y persiste como "sistema activo". Elimina el botón de selección de sistema en la pantalla principal.
-
-**Rastreo retroactivo (acceso al historial de días):**
-> **[CLARIFICACIÓN v1.1]** Si el usuario no pudo marcar un día pasado por falta de tiempo, **puede hacerlo retroactivamente**. Al final de la pantalla principal habrá una sección colapsable "Días anteriores" con los últimos días de la semana actual, donde puede entrar a cualquier día sin marcar y registrarlo. La restricción anterior (sin edición retroactiva) queda **eliminada** del MVP.
+- Al abrir la app, el último sistema activo se muestra **inmediatamente**. Cero fricción.
+- **Frase de anclaje al presente** (ej. "Hoy es un nuevo día. Solo esto") asociada a la configuración JSON del sistema.
+- **Día de la Semana** visible pero sin presión de rachas.
+- **Deslizamiento horizontal (HorizontalPager):** Permite cambiar rápidamente el sistema activo.
+- **Sistema de diseño dinámico:** El tema de colores cambia dinámicamente según el sistema focalizado (ej. colores basados en estado de sueno o cuerpo).
+- **Tracker del día:**
+  - `✅ Sí` o `❌ No` grande y accesible.
+  - Campo de observaciones.
+- **Días Anteriores:** Sección colapsable que muestra los registros de los últimos días en un chip list interactivo, permitiendo registro retroactivo sin límite real en visual.
 
 ### 3.2 Visualización Estructurada del Sistema
 
-> **[CLARIFICACIÓN v1.1]** El contenido del sistema **NO se muestra como Markdown crudo**. La app interpreta la estructura del documento (basada en la `plantilla-sistema.md`) y usa **componentes nativos de Android** para presentarlo de forma visual y estratégica.
+El sistema es consumido desde GitHub como un `.json` y se presenta en componentes nativos:
+- **Identidad y Mantra:** Card inicial altamente visible.
+- **Acción Ideal y Diminuta:** El objetivo puntual del día.
+- **El Proceso Exacto** (pasos): Mini rutina mostrada como lista.
+- **Protocolo del Peor Día:** Medidas para cuando el dia va mal.
+- Todo bajo una capa estética Sereno/Minimalista.
 
-Estructura de visualización por sección:
+### 3.3 Configuración (Pantalla secundaria)
 
-| Sección del doc | Componente Android | Prioridad visual |
-|---|---|---|
-| **Identidad y Propósito** (Mantra + Por qué) | `Card` con fondo resaltado (color de acento) | 🔝 ALTA — siempre visible primero |
-| **Acción Diminuta (Fase actual)** | `Card` con icono de rayo ⚡ + texto grande | 🔝 ALTA — el "qué hacer hoy" |
-| **El Proceso Exacto** (pasos) | Lista numerada con `StepIndicator` | MEDIA |
-| **Protocolo del Peor Día** | `Card` colapsable con icono de escudo 🛡️ | MEDIA |
-| **Motor / Detonador** | Chip o badge pequeño en la tarjeta de acción | BAJA |
-| **Checkpoints de Progresión** | Barra de progreso visual (Fase 1→2→3) | BAJA |
-
-- La sección de **Identidad** y **Acción Diminuta** siempre son las más prominentes visualmente.
-- El resto de secciones están disponibles haciendo scroll hacia abajo.
-- Solo lectura.
-
-### 3.3 Cambio de Sistema
-
-- **Swipe horizontal** en la `HomeScreen` → carga el siguiente/anterior sistema (ver §3.1).
-- Alternativa: un indicador de puntos (dot indicator) en la parte inferior muestra cuántos sistemas hay y en cuál está el usuario.
-- El sistema activo persiste localmente.
-
-### 3.4 Configuración (Pantalla secundaria)
-
-- **Documentos complementarios:** Acceso de lectura a `yo.md` y `reglas-del-sistema.md` (renderizados como Markdown).
-- **Frases motivacionales:** Lista editable de frases de anclaje.
-- **Autenticación GitHub:** Token personal (PAT) para sincronizar el repositorio.
+- **Input de Configuración GitHub:**
+  - Repositorio asociado (owner/repo).
+  - Token PAT (obligatorio solo para exportar, opcional para sincronizar sistemas públicos).
+- **Control de Sincronización:** Botones para descargar últimas configuraciones de sistemas.
+- **Control de Exportación:** Botón para exportar todos los registros (`daily_logs`) como JSON directo en una rama/commit en el repo de GitHub.
+- **Selector manual de Sistema Activo:** Permite definir un sistema explícito en lugar del swipe.
 
 ---
 
 ## 4. Fuente de Datos: GitHub
 
-- Los archivos `.md` viven en el repositorio privado de GitHub del usuario.
-- La app usa la **GitHub REST API** (autenticada con un Personal Access Token) para:
-  - Listar archivos en la carpeta `sistemas/`.
-  - Descargar el contenido de los archivos `.md` solicitados.
-- Los archivos se **cachean localmente** para permitir lectura sin internet.
-- El tracker diario (registros Sí/No + observaciones) se almacena **100% local** en Room (SQLite). No se sube a GitHub.
+- Los sistemas se estructuran como `.json` y viven en la subcarpeta `elahora-data/` del repo en GitHub.
+- Retrofit se comunica con GitHub REST API para:
+  - Listar archivos en `elahora-data/`.
+  - Descargar los `.json` crudos.
+  - Subir la base de datos de logs exportados.
+- Los archivos `.json` se **cachean localmente** permitiendo funcionalidad Offline-First.
+- Logs locales (SQLite/Room) respaldando la BD.
 
 ---
 
 ## 5. Flujo Principal de Uso (User Journey)
 
-```
+```text
 [Abrir app]
-    → Ver pantalla principal con frase de anclaje + fecha de hoy
-    → Ver sistema activo (nombre)
-    → [Opcional] Tocar nombre del sistema → Ver documento completo
-    → [Acción del día] Marcar ✅ o ❌ + escribir observación
-    → [Listo] App cerrada. Se registró el día.
+    → Ver pantalla principal con la frase o cita del sistema activo.
+    → Deslizar en Pager horizontal para saltar a otro sistema (si se requiere).
+    → [Acción del día] Marcar ✅ o ❌ + escribir observación.
+    → [Opcional] Clic en Configuración → "EXPORTAR REGISTROS A GITHUB"
+    → [Listo] App cerrada.
 ```
 
 ---
 
-## 6. Pantallas (Lista preliminar)
+## 6. Pantallas
 
 | Pantalla | Descripción |
 |----------|-------------|
-| `HomeScreen` | Frase del día, fecha, sistema activo (visual), tracker del día, días anteriores colapsables |
-| `SettingsScreen` | yo.md, reglas, frases, token GitHub |
-
-**Nota:** `SystemListScreen` eliminada del MVP. El cambio de sistema se hace con **swipe horizontal** directamente en la `HomeScreen`.
+| `HomeScreen` | Pager principal, frase del día, sistema activo, tracker del día, días anteriores colapsables. |
+| `SettingsScreen` | Flujo de Github (conectar, descargar sistemas, exportar logs), selección explícita del sistema. |
+| `MarkdownReaderScreen` | (Residual) Usada temporalmente para leer archivos como `yo.md`. |
 
 ---
 
 ## 7. Restricciones y No-Features (MVP)
 
-- ❌ **Sin notificaciones push** en el MVP (no se pide aún).
-- ❌ **Sin estadísticas ni rachas** (evita presión psicológica).
-- ✅ **Rastreo retroactivo** para días de la semana en curso sin marcar (ver §3.1).
-- ❌ **Sin modo escritura** desde la app (solo lectura de GitHub).
-- ❌ **Sin publicación en Play Store** (APK personal).
-- ✅ **Soporte offline:** los documentos se cachean. El tracker siempre funciona offline.
-
----
-
-## 8. Plataforma y Tecnología (orientación para Fase 3)
-
-- **Android nativo** (Kotlin + Jetpack Compose).
-- **Almacenamiento local:** Room (tracker diario) + DataStore (preferencias).
-- **Red:** Retrofit + GitHub REST API.
-- **Renderizado Markdown:** Librería open-source (ej. `Markwon`).
-- **Arquitectura:** MVVM + Clean Architecture (a definir en Fase 3).
-
----
-
-## 9. Criterios de Éxito del MVP
-
-1. El usuario puede abrir la app e inmediatamente ver la frase del día y marcar su cumplimiento en menos de **10 segundos**.
-2. El documento del sistema activo es legible y navegable desde el celular.
-3. El registro persiste aunque se cierre y reabra la app.
-4. La app funciona sin internet si los documentos ya fueron descargados.
+- ❌ **Sin notificaciones push**
+- ❌ **Sin modo escritura** de configuraciones desde la app (solo creación en github → json).
+- ❌ **Sin rachas ni presión**.
+- ✅ **Exportación total:** Aprobada la exportación de logs para resguardo de la data propia.
+- ✅ **Completamente nativa/offline**.

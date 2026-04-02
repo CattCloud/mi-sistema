@@ -39,3 +39,8 @@ FEATS FUTUROS
 
 EN LA APP
 Subir tus datos al repositorio -> Sincronización con GitHub: Como ya tenemos la lógica de GitHub, podríamos hacer que la app haga un "Push" de tus logs a un archivo privado en tu repositorio. Así, podrías leerlo desde cualquier IA que tenga acceso a archivos.
+
+
+
+Tareas pendientes
+- Falta generar el json de los sistemas nuevos
