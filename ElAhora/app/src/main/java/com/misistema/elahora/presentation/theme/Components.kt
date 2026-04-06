@@ -82,7 +82,10 @@ fun ElAhoraInput(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    singleLine: Boolean = false,
+    minLines: Int = 3,
+    maxLines: Int = 6
 ) {
     TextField(
         value = value,
@@ -100,6 +103,9 @@ fun ElAhoraInput(
         ),
         shape = RoundedCornerShape(10.dp),
         textStyle = MaterialTheme.typography.bodyLarge,
+        singleLine = singleLine,
+        minLines = minLines,
+        maxLines = maxLines,
         modifier = modifier.fillMaxWidth()
     )
 }

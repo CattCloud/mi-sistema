@@ -176,6 +176,7 @@ fun SystemPageContent(
                         val icon = when (sistema.icon) {
                             "moon" -> Icons.Rounded.NightsStay
                             "sun" -> Icons.Rounded.WbSunny
+                            "fitness" -> Icons.Rounded.FitnessCenter
                             else -> Icons.Rounded.Settings
                         }
                         Icon(icon, contentDescription = null, tint = LocalSystemTheme.current.accentMain, modifier = Modifier.size(18.dp))

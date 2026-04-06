@@ -1,0 +1,24 @@
+{
+  "id": "02-mover-el-cuerpo",
+  "nombre": "Mover el Cuerpo",
+  "icon": "fitness",
+  "quote": "Solo voy y hago lo que toca.",
+  "identidad": "Soy alguien que mueve su cuerpo todos los días. No necesito la rutina perfecta, necesito ir.",
+  "accion_ideal": "Ir al gimnasio todos los días a las 7:10 am, hacer 10 min de caminadora + 1 hora de rutina dividida por músculo siguiendo al instructor",
+  "accion_diminuta": "Ir al gimnasio mínimo 4 días entre semana (L-V). Mínimo 30 minutos",
+  "mini_rutina": {
+    "nombre": "Proceso Exacto del Gym",
+    "duracion_min": 60,
+    "pasos": [
+      "Subir a la caminadora 10 min (calentamiento)",
+      "Ir a la pared, leer qué grupo muscular toca hoy",
+      "Hacer los 5 ejercicios con descanso de 1-2 min entre series",
+      "Opcional: preguntarle al instructor si la técnica está bien"
+    ]
+  },
+  "protocolo_peor_dia": "Ir al gym, hacer 10 min de caminadora + 1 serie de 3 repeticiones full body. 30 min CUENTAN. 30 minutos de movimiento le ganan a 0 minutos en el sofá.",
+  "fases": {
+    "actual": 1,
+    "total": 3
+  }
+}
